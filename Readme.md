@@ -57,15 +57,6 @@ Please note: Library has only a few methods to handle the below test case.
                         window.addEventListener("DOMContentLoaded", argument);
                         return;
                 }
-                if(argumentType === 'string') {
-                        const elements = document.querySelectorAll(argument);
-                        addEventToElements(elements);
-                        return elements;
-                }else if(argumentType === 'object' && argument instanceof HTMLElement) {
-                        const elements = [argument];
-                        addEventToElements(elements);
-                        return elements;
-                }
         };
 
 ```
