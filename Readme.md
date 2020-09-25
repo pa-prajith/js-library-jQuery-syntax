@@ -149,7 +149,7 @@ addEventToElements method is used to add all the events mentioned in the test ca
 ### library function code [File js/lib.js]
 
 ```js
-    onst getArgumentType = option => typeof option;
+    const getArgumentType = option => typeof option;
 
     const createObjectFromArray = arr => Object.fromEntries([arr]);
 
