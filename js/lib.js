@@ -1,20 +1,20 @@
 
-    const T = option => typeof option;
+    const getArgumentType = option => typeof option;
 
-    const O = arr => Object.fromEntries([arr]);
+    const createObjectFromArray = arr => Object.fromEntries([arr]);
 
     const addListener = (elements, action, listener) => {
         elements.forEach(ele => ele.addEventListener(action, listener));
-    }
+    };
 
-    const iterator = (elements, callback) => {
+    const invokeCallbackForElements = (elements, callback) => {
         elements.forEach((ele, itx) => {
             const fn = callback.bind(ele);
             fn(itx);
-        })
-    }
+        });
+    };
 
-    const setter = (elements, prop, options, customFn) => {
+    const setPropertyCustomLogicForElements = (elements, prop, options, customFn) => {
       elements.forEach((ele) => {
         for (const key in options) {
           customFn(ele, prop, key, options[key]);
@@ -22,27 +22,27 @@
       });
     };
 
-    const callSetter = (elements, prop, data, customFn) => {
-        const dataType = T(data[0]); 
+    const setPropertyCustomLogic = (elements, prop, data, customFn) => {
+        const dataType = getArgumentType(data[0]); 
         if (dataType === "string") {
-          setter(
+          setPropertyCustomLogicForElements(
             elements,
             prop,
-            O([data[0], data[1]]), 
+            createObjectFromArray([data[0], data[1]]), 
             customFn
           );
         } else if (dataType === "object") {
-          setter(elements, prop, data[0], customFn);
+          setPropertyCustomLogicForElements(elements, prop, data[0], customFn);
         }
-    } 
+    };
 
     const addEvents = (ele, prop, callback) => {
         ele[prop] = callback;
-    }
+    };
 
     const addEventToElements = (elements) => {
         addEvents(elements, "css", (...opts) =>
-          callSetter(elements, "style", opts, (ele, prop, key, value) => {
+          setPropertyCustomLogic(elements, "style", opts, (ele, prop, key, value) => {
             ele[prop][key] = value;
           })
         );
@@ -55,23 +55,23 @@
         );
 
         addEvents(elements, "each", (opts) => {
-          iterator(elements, opts);
+          invokeCallbackForElements(elements, opts);
         });
-    }
+    };
 
-    const $_ = (...args) => {
-        const optionType = T(args[0]); 
-        if(optionType === 'function') {
-            window.addEventListener("DOMContentLoaded", args[0]);
+    const $_ = (argument) => {
+        const argumentType = getArgumentType(argument); 
+        if(argumentType === 'function') {
+            window.addEventListener("DOMContentLoaded", argument);
             return;
         }
-        if(optionType === 'string') {
-            const elements = document.querySelectorAll(args[0]);
+        if(argumentType === 'string') {
+            const elements = document.querySelectorAll(argument);
             addEventToElements(elements);
             return elements;
-        }else if(optionType === 'object' && args[0] instanceof HTMLElement) {
-            const elements = [args[0]];
+        }else if(argumentType === 'object' && argument instanceof HTMLElement) {
+            const elements = [argument];
             addEventToElements(elements);
             return elements;
         }
-    }
+    };

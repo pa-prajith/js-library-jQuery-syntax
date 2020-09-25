@@ -27,155 +27,204 @@ Please note: Library has only a few methods to handle the below test case.
 });
 ```
 
-## How it is created
+## Implementation of sample library
 
 1. Create a function that accepts an argument 
 
 ```js
-        const $_ = (...args) => {
-        }
+        const $_ = (argument) => {
+
+        }; 
 ```
 
 2. Get the type of the argument
 
 ```js
-        const $_ = (...args) => {
-                const optionType = T(args[0]);
-        }
+        const getArgumentType = option => typeof option;
+
+        const $_ = (argument) => {
+                const argumentType = getArgumentType(argument); 
+
+        };
 ```
 
 3. If the argument is function then the jQuery document ready scenario is handled. Argument function is attached to DOMContentLoaded event of window 
 
 ```js
-        const $_ = (...args) => {
-                const optionType = T(args[0]);
-                if(optionType === 'function') {
-                    window.addEventListener("DOMContentLoaded", args[0]);
-                    return;
-                }
-        }
+        const $_ = (argument) => {
+                const argumentType = getArgumentType(argument); 
+                if(argumentType === 'function') {
+                        window.addEventListener("DOMContentLoaded", argument);
+                        return;
+                }
+                if(argumentType === 'string') {
+                        const elements = document.querySelectorAll(argument);
+                        addEventToElements(elements);
+                        return elements;
+                }else if(argumentType === 'object' && argument instanceof HTMLElement) {
+                        const elements = [argument];
+                        addEventToElements(elements);
+                        return elements;
+                }
+        };
+
 ```
 
 4. If argument is string then use it as a selector [example $('#mainId'), $('.classname'), $(div), $(ul>li))] for document.querySelectorAll()
 
 ```js
-        const $_ = (...args) => {
-                const optionType = T(args[0]);
-                if(optionType === 'function') {
-                    ...
-                }
-                if(optionType === 'string') {
-                    const elements = document.querySelectorAll(args[0]);
-                    return elements;
-                }
-        }
+        const $_ = (argument) => {
+                const argumentType = getArgumentType(argument); 
+                if(argumentType === 'function') {
+                        ...
+                }
+                if(argumentType === 'string') {
+                        const elements = document.querySelectorAll(argument);
+                        return elements;
+                }
+        };
 
 ```
-
-    Methods are added to the returned  node list from query selector all
 
 5. If argument is an html element object then jQuery(this) is handled
 
 ```js
-        const $_ = (...args) => {
-                const optionType = T(args[0]);
-                if(optionType === 'function') {
-                    ...
-                }
-                if(optionType === 'string') {
-                    ...
-                }
-                if(optionType === 'object' && args[0] instanceof HTMLElement) {
-                    const elements = [args[0]];
-                    return elements;
-                }
-        }
+        const $_ = (argument) => {
+                const argumentType = getArgumentType(argument); 
+                if(argumentType === 'function') {
+                        ...
+                }
+                if(argumentType === 'string') {
+                        ...
+                }
+                if(argumentType === 'object' && argument instanceof HTMLElement) {
+                        const elements = [argument];
+                        return elements;
+                }
+        };
+
 ```
 
     Element object is added to an array so that methods can be added to it
 
-6. For the selected elements nodelist\array of argument type string and HtmlElement object methods like css, html, text, each, on are added 
-        Code for adding methods to nodelist\array object is given below
+6. Methods like css, html, text, each, on are added to the NodeList\array retuned from argument type string\object
+
+```js
+
+        const addEventToElements = (elements) => {
+                addEvents(elements, "css", (...opts) =>
+                        setPropertyCustomLogic(elements, "style", opts, (ele, prop, key, value) => {
+                        ele[prop][key] = value;
+                        })
+                );
+
+                addEvents(elements, "html", () => elements[0].innerHTML);
+                addEvents(elements, "text", () => elements[0].textContent);
+
+                addEvents(elements, "on", (...opts) =>
+                        addListener(elements, opts[0], opts[1])
+                );
+
+                addEvents(elements, "each", (opts) => {
+                        invokeCallbackForElements(elements, opts);
+                });
+        };
+        const $_ = (argument) => {
+                ...
+                if(argumentType === 'string') {
+                        ...
+                        addEventToElements(elements);
+                        ...
+                }else if(argumentType === 'object' && argument instanceof HTMLElement) {
+                        ...
+                        addEventToElements(elements);
+                        ...
+                }
+        };
+
+```
+
+addEventToElements method is used to add all the events mentioned in the test case so that can be used in selected element. This method make use of few helper function. All the code is given belwo
 
 ### library function code [File js/lib.js]
 
 ```js
-    const T = option => typeof option;
+    onst getArgumentType = option => typeof option;
 
-    const O = arr => Object.fromEntries([arr]);
+    const createObjectFromArray = arr => Object.fromEntries([arr]);
 
-    const addListener = (elements, action, listener) => {
-        elements.forEach(ele => ele.addEventListener(action, listener));
-    }
+    const addListener = (elements, action, listener) => {
+        elements.forEach(ele => ele.addEventListener(action, listener));
+    };
 
-    const iterator = (elements, callback) => {
-        elements.forEach((ele, itx) => {
-            const fn = callback.bind(ele);
-            fn(itx);
-        })
-    }
+    const invokeCallbackForElements = (elements, callback) => {
+        elements.forEach((ele, itx) => {
+            const fn = callback.bind(ele);
+            fn(itx);
+        });
+    };
 
-    const setter = (elements, prop, options, customFn) => {
-      elements.forEach((ele) => {
-        for (const key in options) {
-          customFn(ele, prop, key, options[key]);
-        }
-      });
-    };
+    const setPropertyCustomLogicForElements = (elements, prop, options, customFn) => {
+      elements.forEach((ele) => {
+        for (const key in options) {
+          customFn(ele, prop, key, options[key]);
+        }
+      });
+    };
 
-    const callSetter = (elements, prop, data, customFn) => {
-        const dataType = T(data[0]); 
-        if (dataType === "string") {
-          setter(
-            elements,
-            prop,
-            O([data[0], data[1]]), 
-            customFn
-          );
-        } else if (dataType === "object") {
-          setter(elements, prop, data[0], customFn);
-        }
-    } 
+    const setPropertyCustomLogic = (elements, prop, data, customFn) => {
+        const dataType = getArgumentType(data[0]); 
+        if (dataType === "string") {
+          setPropertyCustomLogicForElements(
+            elements,
+            prop,
+            createObjectFromArray([data[0], data[1]]), 
+            customFn
+          );
+        } else if (dataType === "object") {
+          setPropertyCustomLogicForElements(elements, prop, data[0], customFn);
+        }
+    };
 
-    const addEvents = (ele, prop, callback) => {
-        ele[prop] = callback;
-    }
+    const addEvents = (ele, prop, callback) => {
+        ele[prop] = callback;
+    };
 
-    const addEventToElements = (elements) => {
-        addEvents(elements, "css", (...opts) =>
-          callSetter(elements, "style", opts, (ele, prop, key, value) => {
-            ele[prop][key] = value;
-          })
-        );
+    const addEventToElements = (elements) => {
+        addEvents(elements, "css", (...opts) =>
+          setPropertyCustomLogic(elements, "style", opts, (ele, prop, key, value) => {
+            ele[prop][key] = value;
+          })
+        );
 
-        addEvents(elements, "html", () => elements[0].innerHTML);
-        addEvents(elements, "text", () => elements[0].textContent);
+        addEvents(elements, "html", () => elements[0].innerHTML);
+        addEvents(elements, "text", () => elements[0].textContent);
 
-        addEvents(elements, "on", (...opts) =>
-          addListener(elements, opts[0], opts[1])
-        );
+        addEvents(elements, "on", (...opts) =>
+          addListener(elements, opts[0], opts[1])
+        );
 
-        addEvents(elements, "each", (opts) => {
-          iterator(elements, opts);
-        });
-    }
+        addEvents(elements, "each", (opts) => {
+          invokeCallbackForElements(elements, opts);
+        });
+    };
 
-    const $_ = (...args) => {
-        const optionType = T(args[0]); 
-        if(optionType === 'function') {
-            window.addEventListener("DOMContentLoaded", args[0]);
-            return;
-        }
-        if(optionType === 'string') {
-            const elements = document.querySelectorAll(args[0]);
-            addEventToElements(elements);
-            return elements;
-        }else if(optionType === 'object' && args[0] instanceof HTMLElement) {
-            const elements = [args[0]];
-            addEventToElements(elements);
-            return elements;
-        }
-    }
+    const $_ = (argument) => {
+        const argumentType = getArgumentType(argument); 
+        if(argumentType === 'function') {
+            window.addEventListener("DOMContentLoaded", argument);
+            return;
+        }
+        if(argumentType === 'string') {
+            const elements = document.querySelectorAll(argument);
+            addEventToElements(elements);
+            return elements;
+        }else if(argumentType === 'object' && argument instanceof HTMLElement) {
+            const elements = [argument];
+            addEventToElements(elements);
+            return elements;
+        }
+    };
 ```
 
 lib.js and index.js are added to the index.html
