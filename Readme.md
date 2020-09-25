@@ -31,45 +31,44 @@ Please note: Library has only a few methods to handle the below test case.
 
 1. Create a function that accepts an argument 
 
-      ```  
+```js
         const $_ = (...args) => {
 
-        }
-      ```
+```
 
 2. Get the type of the argument
 
-    
-        const optionType = T(args[0])`
-    
+```js
+        const optionType = T(args[0])
+```        
 
 3. If the argument is function then the jQuery document ready scenario is handled. Argument function is attached to DOMContentLoaded event of window 
 
-       ``` 
+```js
         if(optionType === 'function') {
             window.addEventListener("DOMContentLoaded", args[0]);
             return;
         }
-       ```
+```
 
 4. If argument is string then use it as a selector [example $('#mainId'), $('.classname'), $(div), $(ul>li))] for document.querySelectorAll()
 
-       ```
+```js
         if(optionType === 'string') {
             const elements = document.querySelectorAll(args[0]);
             return elements;
         }
-       ```
+```
     In the selected node list returned from the query selector methods are added
 
 5. If argument is an html element object then jQuery(this) is handled
 
-      ```javascript
+```js
         if(optionType === 'object' && args[0] instanceof HTMLElement) {
             const elements = [args[0]];
             return elements;
         }
-      ```
+```
 
     Element object is added to an array so that methods can be added to it
 
