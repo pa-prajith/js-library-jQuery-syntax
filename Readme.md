@@ -64,12 +64,12 @@ Please note: Library has only a few methods to handle the below test case.
 
 5. If argument is an html element object then jQuery(this) is handled
 
-      ```js
+      ```javascript
         if(optionType === 'object' && args[0] instanceof HTMLElement) {
             const elements = [args[0]];
             return elements;
         }
-      ``` 
+      ```
 
     Element object is added to an array so that methods can be added to it
 
