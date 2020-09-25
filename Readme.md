@@ -33,7 +33,7 @@ Please note: Library has only a few methods to handle the below test case.
 
 ```js
         const $_ = (...args) => {
-
+        }
 ```
 
 2. Get the type of the argument
