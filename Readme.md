@@ -1,10 +1,10 @@
 # Create a JQuery like library in vanilla javascript
 
-Library in vanilla javascript, works on jQuey like syntax. Instead of $ [jQuery object] this one uses $_ [can use $ also but for differentiation used $_]. 
+Vanilla javascript library that works on jQuey like syntax. Instead of $ function of jQuery this one uses $_ [can use $ also but for differentiation used $_]. 
 
 Please note: Library has only a few methods to handle the below test case.
 
-## Test Case:
+## Test Case [File: js/index.js]
 
 ```js
    $_(() => { // jQuery document ready equivalent
@@ -39,42 +39,65 @@ Please note: Library has only a few methods to handle the below test case.
 2. Get the type of the argument
 
 ```js
-        const optionType = T(args[0])
-```        
+        const $_ = (...args) => {
+                const optionType = T(args[0]);
+        }
+```
 
 3. If the argument is function then the jQuery document ready scenario is handled. Argument function is attached to DOMContentLoaded event of window 
 
 ```js
-        if(optionType === 'function') {
-            window.addEventListener("DOMContentLoaded", args[0]);
-            return;
-        }
+        const $_ = (...args) => {
+                const optionType = T(args[0]);
+                if(optionType === 'function') {
+                    window.addEventListener("DOMContentLoaded", args[0]);
+                    return;
+                }
+        }
 ```
 
 4. If argument is string then use it as a selector [example $('#mainId'), $('.classname'), $(div), $(ul>li))] for document.querySelectorAll()
 
 ```js
-        if(optionType === 'string') {
-            const elements = document.querySelectorAll(args[0]);
-            return elements;
-        }
+        const $_ = (...args) => {
+                const optionType = T(args[0]);
+                if(optionType === 'function') {
+                    ...
+                }
+                if(optionType === 'string') {
+                    const elements = document.querySelectorAll(args[0]);
+                    return elements;
+                }
+        }
+
 ```
-    In the selected node list returned from the query selector methods are added
+
+    Methods are added to the returned  node list from query selector all
 
 5. If argument is an html element object then jQuery(this) is handled
 
 ```js
-        if(optionType === 'object' && args[0] instanceof HTMLElement) {
-            const elements = [args[0]];
-            return elements;
-        }
+        const $_ = (...args) => {
+                const optionType = T(args[0]);
+                if(optionType === 'function') {
+                    ...
+                }
+                if(optionType === 'string') {
+                    ...
+                }
+                if(optionType === 'object' && args[0] instanceof HTMLElement) {
+                    const elements = [args[0]];
+                    return elements;
+                }
+        }
 ```
 
     Element object is added to an array so that methods can be added to it
 
-6. For the selected element of argument type string and HtmlElement object methods like css, html, text, each, on are added 
+6. For the selected elements nodelist\array of argument type string and HtmlElement object methods like css, html, text, each, on are added 
+        Code for adding methods to nodelist\array object is given below
 
-### Code for the library function is given below
+### library function code [File js/lib.js]
 
 ```js
     const T = option => typeof option;
@@ -153,4 +176,33 @@ Please note: Library has only a few methods to handle the below test case.
             return elements;
         }
     }
+```
+
+lib.js and index.js are added to the index.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library - Sample HTML</title>
+</head>
+<body>
+    <div id="main">
+        <h1>header</h1>
+        <h2>Sub Header</h2>
+        <button id="btnAlert" type="button">Alert JS</button>
+        <ul>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>4</li>
+            <li>5</li>
+        </ul>
+    </div>
+    <script src="./js/lib.js"></script>
+    <script src="./js/index.js"></script>
+</body>
+</html>
 ```
